@@ -102,9 +102,7 @@ readfile(char *base, char *file)
 char *
 getbattery(char *base)
 {
-	char *co, status1, status2;
-	char status_discharging[] = "⟿ ";
-	char status_charging[] = "⇜";
+	char *co, status;
 	int descap, remcap;
 	int status_indicator = 0;
 
@@ -141,23 +139,24 @@ getbattery(char *base)
 	co = readfile(base, "status");
 	if (!strncmp(co, "Discharging", 11)) {
 		status_indicator = -1;
+		status = '-';
 	} else if(!strncmp(co, "Charging", 8)) {
 		status_indicator = 1;
+		status = '+';
 	} else {
-		status1 = '[';
-		status2 = ']';
 		status_indicator = 0;
+		status = ']';
 	}
 
 	if (remcap < 0 || descap < 0)
 		return smprintf("invalid");
 
 	if (status_indicator == -1) {
-		return smprintf("%.0f%%%s", ((float)remcap / (float)descap) * 100, status_discharging);
+		return smprintf("%.0f%%%c", ((float)remcap / (float)descap) * 100, status);
 	} else if (status_indicator == 1) {
-		return smprintf("%.0f%%%s", ((float)remcap / (float)descap) * 100, status_charging);
+		return smprintf("%.0f%%%c", ((float)remcap / (float)descap) * 100, status);
 	} else {
-		return smprintf("%c%.0f%%%c", status1, ((float)remcap / (float)descap) * 100, status2);
+		return smprintf("%c%.0f%%%c", '[', ((float)remcap / (float)descap) * 100, status);
 	}
 }
 
